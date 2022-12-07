@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using TCD0502BackEndCourse.Api.Data;
+using TCD0502BackEndCourse.Api.Repositories;
+using TCD0502BackEndCourse.Api.Repositories.Interface;
 
 namespace TCD0502BackEndCourse.Api
 {
@@ -29,8 +31,9 @@ namespace TCD0502BackEndCourse.Api
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
             services.AddControllers().AddNewtonsoftJson(options =>
-    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-);
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
+            services.AddScoped<IProductRepository, ProductRepository>();
             services.AddRazorPages();
         }
 

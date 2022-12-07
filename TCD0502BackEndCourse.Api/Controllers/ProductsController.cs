@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-using System.Linq;
-
-using TCD0502BackEndCourse.Api.Data;
 using TCD0502BackEndCourse.Api.Models;
+using TCD0502BackEndCourse.Api.Repositories.Interface;
 
 namespace TCD0502BackEndCourse.Api.Controllers
 {
@@ -13,27 +10,23 @@ namespace TCD0502BackEndCourse.Api.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private ApplicationDbContext _context;
-        public ProductsController(ApplicationDbContext context)
+        private IProductRepository _productRepository;
+        public ProductsController(IProductRepository productRepository)
         {
-            _context = context;
+            _productRepository = productRepository;
         }
         // Endpoint: /api/products
         [HttpGet("")]
         public IActionResult GetProducts()
         {
-            var products = _context.Products
-                .Include(p => p.Category)
-                .ToList();
+            var products = _productRepository.GetProducts();
             return Ok(products);
         }
         // Endpoint: /api/products/5
         [HttpGet("{id}")]
         public IActionResult GetProduct(int id)
         {
-            var product = _context.Products
-                .Include(p => p.Category)
-                .SingleOrDefault(p => p.Id == id);
+            var product = _productRepository.GetProduct(id);
             if (product == null) return NotFound();
             return Ok(product);
         }
@@ -42,48 +35,27 @@ namespace TCD0502BackEndCourse.Api.Controllers
         public IActionResult Create(Product product)
         {
             if (!ModelState.IsValid) return BadRequest();
-            var newProduct = new Product
-            {
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                CategoryId = product.CategoryId
-            };
-            _context.Add(newProduct);
-            _context.SaveChanges();
+            var result = _productRepository.Create(product);
 
-            return StatusCode(StatusCodes.Status201Created);
+            return result ? StatusCode(StatusCodes.Status201Created)
+                : BadRequest();
         }
 
         [HttpDelete("delete/{id}")]
         public IActionResult Delete(int id)
         {
-            var product = _context.Products.SingleOrDefault(p => p.Id == id);
-            if (product == null) return NotFound();
+            var result = _productRepository.Delete(id);
+            return result ? StatusCode(StatusCodes.Status200OK) : BadRequest();
 
-            _context.Remove(product);
-            _context.SaveChanges();
-
-            return NoContent();
         }
 
         [HttpPut("edit/{id}")]
         public IActionResult Edit(int id, Product product)
         {
             if (!ModelState.IsValid) return BadRequest();
-            var productInDb = _context.Products
-                .SingleOrDefault(p => p.Id == id);
+            var result = _productRepository.Edit(id, product);
 
-            if (productInDb == null) return NotFound();
-
-            productInDb.Name = product.Name;
-            productInDb.Description = product.Description;
-            productInDb.Price = product.Price;
-            productInDb.CategoryId = product.CategoryId;
-
-            _context.SaveChanges();
-
-            return NoContent();
+            return result ? StatusCode(StatusCodes.Status204NoContent) : BadRequest();
         }
     }
 }
