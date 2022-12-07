@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TCD0502BackEndCourse.Api.Models
 {
@@ -11,5 +12,8 @@ namespace TCD0502BackEndCourse.Api.Models
         public string Description { get; set; }
         [Required]
         public decimal Price { get; set; }
+        [ForeignKey("Category")]
+        public int CategoryId { get; set; }
+        public Category Category { get; set; }
     }
 }

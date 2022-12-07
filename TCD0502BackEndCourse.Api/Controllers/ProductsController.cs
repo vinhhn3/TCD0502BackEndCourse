@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 using System.Linq;
 
@@ -21,14 +22,18 @@ namespace TCD0502BackEndCourse.Api.Controllers
         [HttpGet("")]
         public IActionResult GetProducts()
         {
-            var products = _context.Products.ToList();
+            var products = _context.Products
+                .Include(p => p.Category)
+                .ToList();
             return Ok(products);
         }
         // Endpoint: /api/products/5
         [HttpGet("{id}")]
         public IActionResult GetProduct(int id)
         {
-            var product = _context.Products.SingleOrDefault(p => p.Id == id);
+            var product = _context.Products
+                .Include(p => p.Category)
+                .SingleOrDefault(p => p.Id == id);
             if (product == null) return NotFound();
             return Ok(product);
         }
@@ -41,7 +46,8 @@ namespace TCD0502BackEndCourse.Api.Controllers
             {
                 Name = product.Name,
                 Description = product.Description,
-                Price = product.Price
+                Price = product.Price,
+                CategoryId = product.CategoryId
             };
             _context.Add(newProduct);
             _context.SaveChanges();
@@ -73,6 +79,7 @@ namespace TCD0502BackEndCourse.Api.Controllers
             productInDb.Name = product.Name;
             productInDb.Description = product.Description;
             productInDb.Price = product.Price;
+            productInDb.CategoryId = product.CategoryId;
 
             _context.SaveChanges();
 
