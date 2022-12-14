@@ -7,6 +7,7 @@ using TCD0502BackEndCourse.Api.Data;
 using TCD0502BackEndCourse.Api.Models;
 using TCD0502BackEndCourse.Api.Repositories.Interface;
 
+
 namespace TCD0502BackEndCourse.Api.Repositories
 {
     public class ProductRepository : IProductRepository
@@ -21,6 +22,7 @@ namespace TCD0502BackEndCourse.Api.Repositories
         {
             try
             {
+                if (string.IsNullOrEmpty(product.Name)) return false;
                 var newProduct = new Product
                 {
                     Name = product.Name,
